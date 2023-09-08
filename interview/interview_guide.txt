@@ -1,0 +1,1834 @@
+Spark Interview :
+
+Creating RDD :
+rdd=spark.sparkContext.parallelize(dept_id)
+
+rdd to dataframe
+df=rdd.toDf()
+
+df=spark.createDataframe(rdd,schema=deptColumns)
+
+deptColumns=StructType(
+[StructField('dept_name',StringType(),True),
+StructField('dept_id',StringType(),True)])
+	
+Word Count Program in Spark :
+Spark word count program
+        words = sc.textFile("D:/workspace/spark/input.txt").flatMap(lambda line: line.split(" "))
+        wordCounts = words.map(lambda word: (word,1)).reduceByKey(lambda a,b:a +b)
+    map vs flatmap
+3 components of Spark are Executors,Driver and Cluster manager
+Spark architecture:- 
+===================
+spark-submit –master <Spark master URL> –executor-memory 2g –executor-cores 4 WordCount-assembly-1.0.jar
+
+ 
+
+Let’s say a user submits a job using “spark-submit”.
+“spark-submit” will in-turn launch the Driver which will execute the main() method of our code.
+Driver contacts the cluster manager and requests for resources to launch the Executors.
+The cluster manager launches the Executors on behalf of the Driver.
+Once the Executors are launched, they establish a direct connection with the Driver.
+The driver determines the total number of Tasks by checking the Lineage.
+The driver creates the Logical and Physical Plan.
+Once the Physical Plan is generated, Spark allocates the Tasks to the Executors.
+Task runs on Executor and each Task upon completion returns the result to the Driver.
+Finally, when all Task is completed, the main() method running in the Driver exits, i.e. main() method invokes sparkContext.stop().
+Finally, Spark releases all the resources from the Cluster Manager.
+==========================================================================================================================
+difference between logical plan & physical plan 
+
+Logical Plan just depicts what I expect as output after applying a series of transformations like join, filter, where, groupBy, etc clause on a particular table.
+
+Physical Plan is responsible for deciding the type of join, the sequence of the execution of filter, where, groupBy clause, etc.
+===========================
+
+Difference between foreach,map and user defined function
+
+**How unit testing is being done in spark and also debugging 
+
+
+Converting an RDD into dataframe :
+
+
+**Logs in Spark : Spark uses log4j for logging,configurations used by default are present at /etc/spark/conf/log4j.properties
+By default spark logs all outputs to console.
+
+**Yarn container logs : Enable yarn logs container and then the logs are moved from local disk in the executor containers to HDFS and aggregated. 
+
+
+**What is the configuration we give where should we give it,we should give it while doing spark submt in scheduler and pass all the parameters.
+also we can set the configurations on spark binary level that is /etc/spark/spark-env.sh
+
+
+**If I want to change the schema of a particular column then i can do like this
+df = df.withColumn("proc_date_new", df("proc_date").cast(IntegerType)).drop("proc_date")
+
+**Diff between foreach and map function:foreach just traverses through the array so that we can do our stuff while walking with the array and
+map returns an array so we can manipulate the returned array inside the callback function passed to the mapped method and then return it.
+
+**Dataframe vs Dataset vs Rdd :  
+
+**How to read multiline delimiter from spark dataframe :
+We can use multiline in option to read in spark  : spark.read.option("multiline",true)
+
+**How do i read a file with multiple delimiters ?
+mkstring.split("\\$\\")
+
+
+Spark in that we have driver that runs the main method
+which run our program and intilaizes the spark context/session and split the task among executors and then executor act as worker nodes to run
+individual task and return the result back to driver,even if we have spark executors fail then also our spark job will like keep running.
+
+**Spark Session is just like a wrapper on spark context for spark session is like multiple users/session can be run in same program,it is like we don't need
+separate spark context,hive context and sql context,spark session handles it all and spark context is created 1 per JVM and spark session can be created multiple times.
+**Role of Spark Context /Spark Session : All the communication between driver cluster ,execution environment and resource manager,
+we want the change the no of memory,to change the no of cores.
+
+
+**Do spark has the capability to store the metadata just like Hive ?
+Yes spark stores in hive metastore and we can define it in configuration.
+**What version of cloudera/python/scala you are using?
+
+**There is a super market and in august month 
+
+phone number | name | dateofvisit
+123	| mishu | 12-23-2002
+
+sel cast(dataofvisit,to_date) as date ,count(*) as no_of_customer_visited from table group by 1 
+having count() > 100 
+
+
+How many days a customer has visted more than 100 
+
+
+
+**Each block size of hadoop is 128 mb
+Cluster manager : Spark relies on cluster manager to launch executors in spark,
+schedule spark jobs and action on FIFO manner unless changed.
+
+The application can free unused resources and demand for other task for execution.
+ 
+1)We have a file with delimiter,we have to remove the delimiter(File Name=Delimiterexample.csv)
+2)Why spark gives better performance(in-memory,optimization) why spark engine is good than hadoop map reduce
+Answer : In hadoop storage is on disk and in spark it has in memory storage and map reduce supports only one storage and language and 
+scala has open to storage and usage of language.Spark supports so many of frameworks and API.Spark can have fault tolerance.
+3)What are the optimization you are using in Spark
+*Partioning and bucketing in hive
+Syntax of Partioning and Bucketing :  
+
+
+
+**Spark SQL SYNTAX :
+
+df1.createOrReplaceTempView("df1")
+df2.createOrReplaceTempView("df2")
+
+spark.sql(
+ "SELECT  * FROM df1 JOIN df2 ON df1.id = df2.id"
+)
+
+**Why we can't store small file as hadoop as lot of storage -- As it will create more meta data
+difference between map-reduce and spark
+
+**
+df.createOrReplaceTempView("table1") --First we will create view like this.
+Spark.sql(select * from table1)
+
+*By default spark stores the metadata in hive metastore but we can also configure and change it to different folder where ever we want.
+*spark has two types of tables,managed vs unmanaged tables,in managed spark handles both metadata and data stored and in unmanaged it handles only the metastore and
+rest the data is handled by cassandra.
+
+**Writing a table in spark
+df.write.saveAsTable("managed_table1")
+
+spark.sql("select * from managed_table1")
+
+*write
+df.write.option("path","/tmp/data/us_flights_delay").saveAsTable("table1")
+
+We can also create view out of this.
+
+df_sfo = spark.sql("SELECT date, delay, origin, destination FROM 
+  us_delay_flights_tbl WHERE origin = 'SFO'")
+df_jfk = spark.sql("SELECT date, delay, origin, destination FROM 
+  us_delay_flights_tbl WHERE origin = 'JFK'")
+
+# Create a temporary and global temporary view
+df_sfo.createOrReplaceGlobalTempView("us_origin_airport_SFO_global_tmp_view")
+df_jfk.createOrReplaceTempView("us_origin_airport_JFK_tmp_view")
+
+##Using this we can list the databses and tables in spark
+spark.catalog.listDatabases()
+spark.catalog.listTables()
+spark.catalog.listColumns("us_delay_flights_tbl")
+
+Writing dataframes to sql tables :
+df.write.mode("overwrite").saveAsTable("tabl1")
+
+##This way we can read a json file into a sql table  
+create or Replace Temporary View table1
+Using json 
+OPTIONS (
+path "/path/location/*")
+
+##writing dataframe as a json file
+df.write.format("json").mode("overwrite").option("compression","snappy").save("/tmp/data/path")
+compression types : gzip,snappy
+
+
+
+
+
+
+**When we join the dataframe in scala then we mention 3 === why 3 equal to.
+
+The "==" is using the equals methods which checks if the two references point to the same object. 
+The definition of "===" depends on the context/object. For Spark , "===" is using the equalTo method
+
+== returns a boolean
+
+=== returns a column (which contains the result of the comparisons of the elements of two columns)
+
+
+**out of memory issues?
+There are 2 cases -- First one is collect operation as problem with collect operation is it runs on driver side so when we have a big file
+and it is being executed on variuos executors and when executors take that file to driver then driver couldn't accomodate the file and it gives error.
+Second : Broadcast join can cause out of memory issue,to solve this either increase the size of driver or put some threshold on the broadcastjoin table
+Also keep in mind the reduce by key,groupby key and also u can increase the no of executors ,Go through your query plan 
+reduce by key can also be not efficient,so we can use treereducer,the output of executors going to driver can first go to executors and 
+then will come to driver.And we can define the node of tree.
+
+**How to handle exception in spark
+you can use try and catch
+
+
+**When can executor go out of memory :High Concurrency/Big Partition/Yarn Memory Overhead
+
+
+**Difference between Avro and Parquet format and ORC :
+
+All these are made for hadoop storage and used for compression.
+
+Files stored in ORC, Parquet, and Avro formats can be split across multiple disks,
+ which lends themselves to scalability and parallel processing. 
+You cannot split JSON and XML files, and that limits their scalability and parallelism
+
+The biggest difference between them is how to store the data.
+
+The biggest difference between ORC, Avro, and Parquet is how to store the data.Parquet and ORC both store data in columns, 
+while Avro stores data in a row-based format.By their very nature,column-oriented data stores are
+optimized for read-heavy analytical workloads,while row-based databases are best for write-heavy transactional workloads.
+
+ORC offers better schema evolution than parquet and Avro has offers superior schema than all two.
+
+Finding the right file format for your particular dataset can be tough.In General,if the data is wide, 
+has a large number of attributes and is write-heavy,then a row-based approach may be best. 
+If the data is narrower, has a fewer number of attributes, and is read-heavy, then a column-based approach may be best.
+
+
+
+Parquet is a columnar format and Avro is row format file.
+
+Apache Avro is an open-source, row-based, data serialization and data exchange framework for Hadoop projects, 
+originally developed by databricks as an open-source library that supports reading 
+and writing data in Avro file format.
+It is mostly used in Apache Spark especially for Kafka-based data pipelines.When Avro data is stored in a file, 
+its schema is stored with it, so that files may be processed later by any program
+
+ORC stands of Optimized Row Columnar which provides a highly efficient way to store the data in a self-describing,
+type-aware column-orientedformat for the Hadoop ecosystem. This is similar to other columnar storage formats 
+
+ORC Advantages
+Compression: ORC stores data as columns and in compressed format hence it takes way less disk storage than other formats.
+Reduces I/O: ORC reads only columns that are mentioned in a query for processing hence it takes reduces I/O.
+Fast reads: ORC is used for high-speed processing 
+as it by default creates built-in index and has some default aggregates like min/max values for numeric data.
+
+
+
+**Handling Nested JSON in Spark
+
+**We are given a dataset where we have no of employee salary month wise and we have to find in which month employee draws more than 1 million salary
+
+
+Employee| Monthwise|Salary
+
+emp1|jan|2000
+emp1|feb|100000
+emp2|feb | 5000
+emp3|march|3000
+select a.month,a.employee from table a where a.salary ge 100000 groupby 
+
+select a.month,a.employee from table a  where a.salary ge 1000000 groupby a.employee 
+
+select l.*
+from table l
+inner join (
+  select 
+    m_id,max(timestamp) as latest 
+  from table 
+  group by m_id
+) r
+  on l.timestamp = r.latest and l.m_id = r.m_id
+order by timestamp desc
+
+ 
+
+
+select month from emp where salary ge 1 million and employee=a and isme row num bi lagana hain,rownum ,rank and dense_rank bi padh le bha
+
+**How to do debuging in spark
+
+**We have been given two table and in that we have emp table and dept table and we have to find max salary of 2 employees dept wise??
+**Indexing
+**Window function
+**duplicates in sql
+**partitioning in spark
+**colaesece 
+
+**What is surrogate key   
+**sql query to read file from local :: Create table employeeData Using CSV OPTIONS ("",header "true")
+
+
+
+**FIbnocci series :
+var length = scala.io.StdIn.readFloat()
+ 
+ Jumping question of stairs 
+ 30
+ fibnoccie numbers
+ int fib(int n)
+{
+    if (n <= 1)
+        return n;
+    return fib(n - 1) + fib(n - 2);
+}
+
+
+
+*What is star schema and snow schema
+
+
+DDL (Data defination language) : create,drop,truncate,delete,
+
+
+DML opeartions : Data manipulation commands : They are used to insert or querying the data 
+
+ 
+ 
+ 
+
+
+
+
+**Difference between datasets and dataframes and what we are using in our project
+Data Representation	RDD is a distributed collection of data elements without any schema.	
+It is also the distributed collection organized into the named columns	
+It is an extension of Dataframes with more features like type-safety and object-oriented interface.
+Optimization : No in-built optimization engine for RDDs. 
+Developers need to write the optimized code themselves : It uses a catalyst optimizer for optimization.
+It also uses a catalyst optimizer for optimization purposes.
+Projection of Schema.Here, we need to define the schema manually.
+It will automatically find out the schema of the dataset.	
+It will also automatically find out the schema of the dataset by using the SQL Engine.
+Aggregation Operation RDD is slower than both Dataframes and Datasets to perform simple operations like grouping the data.	
+It provides an easy API to perform aggregation operations.It performs aggregation faster than both RDDs and Datasets.
+
+
+**Encoders in Spark : It is basically used for serialization/deserialization.
+
+
+
+**How you will increase the performance of job in spark
+
+**We have Emp table
+emp_name | emp_age |emp_location
+arindhum |18|bhubnaeshwar
+arindhum|18|banglore
+i want to do distinct on basis of name and age
+
+
+**Scala case classes,Why case classe instead of simple class?
+
+Scala :: 
+
+
+**What are the optimizations we can do while joining two large tables? apart from pre-bucketing and pre-sorting?
+https://medium.com/datakaresolutions/optimize-spark-sql-joins-c81b4e3ed7da
+
+**Spark architecture
+
+
+**How do you reduce shuffling
+
+
+
+
+
+**What is case class and how it is used?
+
+
+
+
+**What is inmemory and disk
+
+
+**Catalyst query optimizer
+1. Prove why RDDs are type safe.
+2. Read a file ( student and rollnum) into RDD and convert this into a key-value pair. Remove any record where rollnum is present in a separate file (just having roll numbers). Do all this without using Spark SQL or Dataframes.
+3. Reading a file having employee, department and salary. Find 3rd highest salaried employee for each department in Spark.
+ Right now try doing 3rd with RDD only, then do it with Dataframes
+ 
+**How to handle null values in scala
+ 
+ 
+ 
+Spark Questions :
+SparkQA
+Apache Spark Interview Question and Answers
+Apache® Spark™ is a powerful open source processing engine built around speed, ease of use, and sophisticated analytics.It was originally developed at UC Berkeley in 2009. It has become one of most rapidly-adopted cluster-computing frameworks by enterprises in different industries across the globe. Expert professionals are in great demand with the rise of the importance of big data and analytics. With the rise in opportunities in big data, you need to be proficient in the tools and skills associated with it.
+
+As a big data expert, it is expected that you should have experience in some of the prominent tools in the industry,including Apache Spark. This article will help you to crack an Apache Spark interview with some of the frequently-asked questions:
+
+Q1. Mention some of the areas where Spark outperforms Hadoop in processing
+
+Ans. Sensor data processing, real-time querying of data and stream processing.
+
+Q2. What is RDD?
+
+Ans. RDD (Resilient Distribution Datasets) is a fault-tolerant collection of operational elements that run parallel. 
+The partitioned data in RDD is immutable and distributed.
+
+Q3. Name the different types of RDD
+
+Ans. There are primarily two types of RDD – parallelized collection and Hadoop datasets.
+
+Q4. What are the methods of creating RDDs in Spark?
+
+Ans. There are two methods –
+
+By parallelizing a collection in your Driver program.
+By loading an external dataset from external storage like HDFS, HBase, shared file system.
+Q5. What is a Sparse Vector?
+
+Ans. A sparse vector has two parallel arrays –one for indices and the other for values.
+
+Q6. What are the languages supported by Apache Spark and which is the most popular one, What is JDBC and why it is popular?
+
+Ans. There are four languages supported by Apache Spark – Scala, Java, Python, and R. Scala is the most popular one.
+
+Java Database Connectivity (JDBC) is an application programming interface (API) that defines database connections in Java environments.
+ Spark is written in Scala, which runs on the Java Virtual Machine (JVM).
+ This makes JDBC the preferred method for connecting to data whenever possible. 
+ Hadoop, Hive, and MySQL all run on Java and easily interface with Spark clusters.
+
+**Databases are advanced technologies that benefit from decades of research and development.
+To leverage the inherent efficiencies of database engines, Spark uses an optimization called predicate pushdown. 
+Predicate pushdown uses the database itself to handle certain parts of a query (the predicates).
+ In mathematics and functional programming, a predicate is anything that returns a Boolean.
+ In SQL terms, this often refers to the WHERE clause.Since the database is filtering data before it arrives on the Spark cluster, 
+ there's less data transfer across the network and fewer records for Spark to process. 
+ Spark's Catalyst Optimizer includes predicate pushdown communicated through the JDBC API, 
+ making JDBC an ideal data source for Spark workloads.
+ 
+Partition Pruning and predicate pushown : It is used for optimization in spark.
+
+Partition pruning is a performance optimization that limits the number of files and partitions that spark reads when querying.
+If we do filtering before we do the scanning of data then it optimizes of spark job.
+
+When partition filters are present,the catalyst optimizer pushes down the partition filters.
+
+So now we have partition columns where we store the data,so when it is running then what it has done is it has pushdown the scan 
+operation and first it does filter and then do scan. 
+
+Dynamic Pruning : In this the filtering condition is applied on runtime,so in broadcats join it will not only pass the small table to 
+each executor also it will do the pruning at run time and this feature is in spark 3.
+
+Code for Partition Pruning ?
+what is the threshold limit for broadcast join in dataframe in spark -- 10mb
+
+ 
+ 
+
+ 
+ 
+**What is Catalyst optimizer : While working in RDD,code is not optimized and in case of dataframe and dataset we have optimization,
+so when we submit the spark job and it buld the query plan and  do the optimizaton through 
+the catalyst optimizer to execute the logical plan and pass the result to RDD code.
+
+   
+
+Q7. What is Yarn?
+
+Ans. Yarn is one of the key features in Spark,providing a central and resource management platform to deliver scalable operations 
+across the cluster.
+
+Q8. Do you need to install Spark on all nodes of Yarn cluster? Why?
+
+Ans. No, because Spark runs on top of Yarn.
+
+**Yarn Vs Spark fault tolerance : 
+Yarn is resource manager 
+Spark is executor framework
+
+
+If we have any failure of resource,it assign resource to job and it schedule jobs on different machine.
+Spark execute the logic on data,spark can run on mesos,yarn.
+
+yarn is capable of recovering the machine/resource manager and spark recover the partitions in failure as spark has a concept of lineage.
+
+Q9. Is it possible to run Apache Spark on Apache Mesos?
+
+Ans. Yes.
+
+Q10. What is lineage graph?
+Lineage :
+It is set of transformation that need to be apply on RDD to create the final RDD.
+like 
+RDD1=>RDD2=>RDD3
+when we do rdd3.toDebugString so it will give me a logical plan how i can create
+ the RDD by applying multiple transformation on initial RDD1
+ 
+DAG : A acylic graph of stages,as soon as we apply multiple creation on RDD ,as soon we apply action then the logcial plan(lineage) is submitted
+to catalyst optimizer and it will generate the final plan and it will submit to DAG and it will generate the physical plan and it will 
+divide the whole plan into stages.So it will decide which task can be run on paralled,which has dependecny.
+
+DAG has more information as it has more information about implementaion point and scheduling point of view,
+it is more of dependency point of view.
+ 
+
+Ans. The RDDs in Spark, depend on one or more other RDDs.
+The representation of dependencies in between RDDs is known as the lineage graph.
+
+Q11. Define Partitions in Apache Spark
+
+Ans. Partition is a smaller and logical division of data similar to ‘split’ in MapReduce.
+ It is a logical chunk of a large distributed data set.
+ Partitioning is the process to derive logical units of data to speed up the processing process.
+
+Q12. What is a DStream?
+
+Ans. Discretized Stream (DStream) is a sequence of Resilient Distributed Databases that represent a stream of data.
+
+Q13. What is a Catalyst framework?
+
+Ans. Catalyst framework is an optimization framework present in Spark SQL.
+It allows Spark to automatically transform SQL queries by adding new optimizations to build a faster processing system.
+
+Q14. What are Actions in Spark?
+
+Ans. An action helps in bringing back the data from RDD to the local machine.
+An action’s execution is the result of all previously created transformations.
+
+Q15. What is a Parquet file?
+
+Ans. Parquet is a columnar format file supported by many other data processing systems.
+
+Q16. What is GraphX?
+
+Ans. Spark uses GraphX for graph processing to build and transform interactive graphs.
+
+Q17. What file systems does Spark support?
+
+Ans. Hadoop distributed file system (HDFS), local file system, and Amazon S3.
+
+Q18. What are the different types of transformations on DStreams? Explain.
+
+Ans.
+
+Stateless Transformations – Processing of the batch does not depend on the output of the previous batch. Examples – map (), reduceByKey (), filter ().
+Stateful Transformations – Processing of the batch depends on the intermediary results of the previous batch. Examples –Transformations that depend on sliding windows.
+Q19. What is the difference between persist () and cache ()?
+
+Ans. Persist () allows the user to specify the storage level whereas cache () uses the default storage level.
+
+
+Q20. What do you understand by SchemaRDD?
+
+Ans. SchemaRDD is an RDD that consists of row objects (wrappers around the basic string or integer arrays) with schema information about the type of data in each column.
+
+These are some of the popular questions asked in an Apache Spark interview. Always be prepared to answer all types of questions — technical skills, interpersonal, leadership or methodology. If you are someone who has recently started your career in big data, you can always get certified in Apache Spark to get the techniques and skills required to be an expert in the field.
+
+Q21.What is Apache Spark?
+
+Spark is a fast, easy-to-use and flexible data processing framework. It has an advanced execution engine supporting cyclic data flow and in-memory computing. Spark can run on Hadoop, standalone or in the cloud and is capable of accessing diverse data sources including HDFS, HBase, Cassandra and others.
+
+Q22. Explain key features of Spark.
+
+Allows Integration with Hadoop and files included in HDFS.
+Spark has an interactive language shell as it has an independent Scala (the language in which Spark is written) interpreter.
+Spark consists of RDD’s (Resilient Distributed Datasets), which can be cached across computing nodes in a cluster.
+Spark supports multiple analytic tools that are used for interactive query analysis , real-time analysis and graph processing
+
+
+Q23. Define RDD?
+
+RDD is the acronym for Resilient Distribution Datasets –
+a fault-tolerant collection of operational elements that run parallel. 
+The partitioned data in RDD is immutable and distributed. There are primarily two types of RDD:
+
+Parallelized Collections : The existing RDD’s running parallel with one another.
+Hadoop datasets : perform function on each file record in HDFS or other storage system
+Q24. What does a Spark Engine do?
+
+Spark Engine is responsible for scheduling, distributing and monitoring the data application across the cluster.
+
+Q25.Define Partitions?
+
+As the name suggests, partition is a smaller and logical division of data similar to ‘split’ in MapReduce. 
+Partitioning is the process to derive logical units of data to speed up the processing process. 
+Everything in Spark is a partitioned RDD.
+
+Q26.What operations RDD support?
+
+Transformations.
+Actions
+
+
+Q27.What do you understand by Transformations in Spark?
+
+ Transformations are functions applied on RDD,
+ resulting into another RDD. It does not execute until an action occurs.
+ map() and filer() are examples of transformations, 
+ where the former applies the function passed to it on each element of      RDD and results into another RDD.
+ The filter() creates a new RDD by selecting elements form current RDD that pass function argument.
+
+Q28.Define Actions.
+
+
+An action’s execution is the result of all previously created An action helps in bringing back the data from RDD to the local machine transformations. 
+reduce() is an action that implements the function passed again and again until one value is left.
+take() action takes all the values from RDD to local node.
+
+Q29.Define functions of SparkCore?
+
+Serving as the base engine, SparkCore performs various important functions like memory management,
+monitoring jobs, fault-tolerance,job scheduling and interaction with storage systems.
+
+Q30.What is RDD Lineage?
+
+Spark does not support data replication in the memory and thus, 
+if any data is lost, it is rebuild using RDD lineage. 
+RDD lineage is a process that reconstructs lost data partitions. 
+The best is that RDD always remembers how to build from other datasets.
+
+Q31.What is Spark Driver?
+
+Spark Driver is the program that runs on the master node of the machine 
+and declares transformations and actions on data RDDs.
+ In simple terms, driver in Spark creates SparkContext, connected to a given Spark Master.
+ The driver also delivers the RDD graphs to Master, where the standalone cluster manager runs.
+
+
+Q33. Name commonly-used Spark Ecosystems.
+
+Spark SQL (Shark)- for developers.
+Spark Streaming for processing live data streams.
+GraphX for generating and computing graphs.
+MLlib (Machine Learning Algorithms).
+SparkR to promote R Programming in Spark engine.
+
+Q34. Define Spark Streaming.
+Spark supports stream processing – an extension to the Spark API , allowing stream processing of live data streams.
+ The data from different sources like Flume, HDFS is streamed and finally processed to file systems, live dashboards and databases. 
+ It is similar to batch processing as the input data is divided into streams like batches.
+
+Q35.What is Spark SQL?
+
+SQL Spark,better known as Spark is a novel module introduced in Spark to work with structured data
+ and perform structured data processing. 
+ Through this module, Spark executes relational SQL queries on the data. 
+The core of the component supports an altogether different RDD called SchemaRDD,
+ composed of rows objects and schema objects defining data type of each column in the row. It is similar to a table in relational database.
+
+Q36.List the functions of Spark SQL?
+
+Spark SQL is capable of:
+
+Loading data from a variety of structured sources.
+Querying data using SQL statements,
+ both inside a Spark program and from external tools that connect to Spark SQL 
+ through standard database connectors (JDBC/ODBC). 
+ For instance, using business intelligence tools like Tableau.
+Providing rich integration between SQL and regular Python/Java/Scala code,
+including the ability to join RDDs and SQL tables, expose custom functions in SQL, and more.
+ 
+ 
+Q37.What are benefits of Spark over MapReduce?
+
+Due to the availability of in-memory processing, Spark implements the processing around 10-100x faster than
+ Hadoop MapReduce. MapReduce makes use of persistence storage for any of the data processing tasks.
+Unlike Hadoop, Spark provides in-built libraries to perform multiple tasks form the same core like batch processing,
+Steaming, Machine learning, Interactive SQL queries. However, Hadoop only supports batch processing.
+Hadoop is highly disk-dependent whereas Spark promotes caching and in-memory data storage.
+Spark is capable of performing computations multiple times on the same dataset.
+ This is called iterative computation while there is no iterative computing implemented by Hadoop.
+ 
+Q38. What is Spark Executor?
+
+When SparkContext connect to a cluster manager, 
+it acquires an Executor on nodes in the cluster.
+Executors are Spark processes that run computations and
+store the data on the worker node. 
+The final tasks by SparkContext are transferred to executors for their execution.
+
+
+Q39.Name types of Cluster Managers in Spark.
+
+The Spark framework supports three major types of Cluster Managers:
+
+Standalone : a basic manager to set up a cluster.
+Apache Mesos : generalized/commonly-used cluster manager, also runs Hadoop MapReduce and other applications.
+Yarn : responsible for resource management in Hadoop
+
+YARN is application level scheduler and Mesos is OS level scheduler. it is better to use YARN 
+if you have already running Hadoop cluster (Apache/CDH/HDP). In case of a brand new project, better to use Mesos(Apache, Mesosphere). 
+There is also a provision to use both of them in colocated manner using Project called Apache Myriad.
+
+Q40. What do you understand by worker node?
+
+Worker node refers to any node that can run the application code in a cluster.
+
+Q41.Illustrate some demerits of using Spark.
+
+Since Spark utilizes more storage space compared to Hadoop and MapReduce,there may arise certain problems. 
+Developers need to be careful while running their applications in Spark.Instead of running everything on a single node, 
+the work must be distributed over multiple clusters.
+
+Q42.What is the advantage of a Parquet file?
+
+Parquet file is a columnar format file that helps – Limit I/O operations Consumes less space Fetches only required columns.
+
+Q43.What is the difference between persist() and cache()
+
+persist () allows the user to specify the storage level whereas cache () uses the default storage level.
+
+Q44.what are different o/p methods to get result?
+
+collect() show() take() foreach(println)
+
+Q45: What are two ways to attain a schema from data?
+Ans: Allow Spark to infer a schema from your data or provide a user defined schema.
+Schema inference is the recommended first step; 
+however, you can customize this schema to your use case with a user defined schema. Note
+
+Providing a schema increases performance two to three times, depending on the size of the cluster used.
+ Since Spark doesn't infer the schema, it doesn't have to read through all of the data. 
+This is also why there are fewer jobs when a schema is provided: 
+Spark doesn't need one job for each partition of the data to infer the schema.
+
+Q46: Why should you define your own schema?
+Ans: Benefits of user defined schemas include:
+
+Avoiding the extra scan of your data needed to infer the schema
+Providing alternative data types
+Parsing only the fields you need
+
+
+Q47: Why is JSON a common format in big data pipelines?
+Ans: Semi-structured data works well with hierarchical data and
+where schemas need to evolve over time.
+It also easily contains composite data types such as arrays and maps.
+
+Q48: By default, how are corrupt records dealt with using spark.read.json()?
+https://gankrin.org/how-to-handle-bad-or-corrupt-records-in-apache-spark/
+Ans: They appear in a column called _corrupt_record. 
+These are the records that Spark can't read (e.g. when characters are missing from a JSON string).
+To handle such bad or corrupted records/files,we can use an Option called “badRecordsPath” while sourcing the data.
+We have two correct records – “France ,1”, “Canada ,2” . The df.show() will show only these records
+The other record which is a bad record or corrupt record (“Netherlands,Netherlands”) as per the schema,
+will be re-directed to the Exception file – outFile.json.
+The exception file is located in /tmp/badRecordsPath as defined by “badrecordsPath” variable.
+The exception file contains the bad record, the path of the file containing the record, and the exception/reason message.
+We can use a JSON reader to process the exception file.
+
+We can also use the columnname of corrupt file
+
+//Consider an input csv file with below data
+Country, Rank
+France,1
+Canada,2
+Netherlands,Netherlands
+
+dataSchema = "Country String, Rank Integer, CORRUPTED String"
+
+df = spark.read.csv('/tmp/inputFile.csv', header=True, schema=dataSchema, enforceSchema=True, 
+columnNameOfCorruptRecord='CORRUPTED')
+
+print(df.show())
+corrupt data
+**We can also use the permissive mode for corrupt data
+option("mode", "PERMISSIVE")] : _corrupt_record : It create this column in json format ,it means it will consider the data
+option("mode", "DROPMALFORMED") : It drops at run time
+option("mode","FAILFAST) : It will raise the exception
+
+
+
+1. Find indexes of duplicate elements in an array (in place). The solution should be efficient in space and time utilization.
+
+2. Implement (override) equals and hash code methods of an object.
+
+3. Read a csv file to string and convert any empty (null) values to the string "Missing value".
+
+4. Merge two lists in scala without using a predefined merge function.
+
+** Broadcast variable in spark : It is basically used to broadcast the variables partition level so that data scan can be less.
+
+**Surrogate key : They are basically used to connect the fact and dimension table,
+in this we don't use large business keys when doing operation,
+instead,we use surrogate keys so that our datawarehouse operations can 
+be faster and doing operations on business keys may not lead to degrade the data.
+ 
+**Without minus operator we can use full outer join and keep the value = null and it will minus the data from both table and and 
+will keep where value is null
+select * from table 1 full outer join table 2 on 1.id=b.id where id=Null
+**case when Then
+Case when Then
+Else
+End as col
+
+SELECT decode(count (*), 0, 'MATCH', 'NO MATCH')
+FROM T_1
+FULL OUTER JOIN T_2
+    ON T_1.a = T_2.a AND T_1.b = T_2.b /* List all colums */
+WHERE T_1.a IS NULL
+   OR T_2.a IS NULL;
+   
+   
+We have lag and lead Window Function: 
+
+revenue,Year-quarter,rank,revenue_last_year,revenue_coming_year
+2000,2012-1 1,NULL,3000
+3000,2012-2 2,2000,4000
+4000,2012-3 3,3000,5000
+5000,2012-4 4,4000,NULL
+
+We can use lead and lag function for this.
+
+
+months_between()
+datediff()
+add_months()
+add_months()
+date_add()
+date_sub()
+year(),month(),month()
+dayofweek(),dayofmonth(),dayofyear()
+next_day(),weekofyear()
+
+
+
+Scala : Closure,currying function, https://www.guru99.com/scala-interview-questions.html
+
+
+
+printSchema is transformation or Action? printSchema is a method in spark
+
+name address dateofbirth and i have to define the schema for that
+we can define the schema by using structtype(structfield("column1",IntegerType(),True)
+
+ways to create RDD
+Parallelizing already existing collection in driver program.
+Referencing a dataset in an external storage system (e.g. HDFS, Hbase, shared file system).
+Creating RDD from already existing RDDs.
+
+lineage & DAG : What is DAG and how it works in fault tolerance?
+Lineage Graph
+As we know, that whenever a series of transformations are performed on an RDD, 
+they are not evaluated immediately, but lazily(Lazy Evaluation). 
+When a new RDD has been created from an existing RDD, that new RDD contains a pointer to the parent RDD. 
+Similarly,all the dependencies between the RDDs will be logged in a graph,
+ rather than the actual data. This graph is called the lineage graph.
+zoning Delete duplicate record from below example in Dataframe?
+ID Name Value
+1 R1 20
+1 R2 30
+2 R3 40
+val dropDisDF = df.dropDuplicates("ID"")
+
+Now coming to DAG : 
+
+Directed Acyclic Graph(DAG)
+DAG in Apache Spark is a combination of Vertices as well as Edges. 
+In DAG vertices represent the RDDs and the edges represent the Operation to be applied on RDD.
+Every edge in DAG is directed from earlier to later in a sequence.
+When we call an Action, the created DAG is submitted to DAG Scheduler which further splits the graph into the stages of the task.
+
+**groupbykey & reduceBykey
+In groupByKey,whenever a groupby key is called on pairs what happen is data is shuffled over network to form a key and list of values.
+
+reduceBykey : It works much better than on large dataset as compared to groupBykey,bcz spark knows it can combine output with a
+common key on each partition before shuffling the data.
+
+the aggregateBykey function is used to aggregate the values for each key and adds the potential to return the a different value type.
+Also it takes 2 parameters a function. 
+
+Caching & Persist: In persist,mostly use memory only,u can use memory_only_ser,if function are expensive then only spill to disk.
+Also ,unpersist is used to release the resources.
+
+
+Inferschema="false" :: It is bydefault set to false and when we set it to true then it concludes/infers datatype from reading the data,and it take the data reading one more time. 
+
+Is printSchema() a transformation or action ?: It is a method for any spark dataset and dataframe
+
+**How to change the schema of a particular column ? withcolumn("new_column",column.cast(Intergertype)).drop(column)--may be 
+
+
+**difference between dataset and dataframe
+there was no compie type safey in sql queries ,schema is very integral part of schema,direct operations over user defined class,RDD functional nature
+Dataframe optimization,dataset is only available in scala and java,dataste is like collection of object and it has schema mapped to it.
+analysis error are caught at complie time,datastes came with feature of encoders.
+
+merge 2 dataframes : Apart from joins
+
+**Join Optimization : Shuffle join (Shuffle sort merge join ) and broadcast hash join 
+
+
+Spark submit : What happens when we use spark-submit
+The spark-submit command is utility to run/submit the spark application program to cluster by specifying the option and configuration.
+Spark-Submit comes with spark-submit.sh,it internally uses org.apache.spark.deploy.SparkSubmit class
+and in spark-submit command,we give the arguments like master,node,deploy-mode and executors,jars,cores,no of CPU cores to be used 
+by executors.You can also give VERBOSE option spark-submit,as it gives you the log file 
+
+Deployement modes -- -- Deploy-mode,Spark supports cluster and client deployement modes.
+Cluster : In cluster mode,driver runs on one of the cluster node and it is used to run the production jobs.
+Client Mode : Only driver runs on cluster node and rest executors run on different nodes of cluster.
+It is used for basic interactive and debugging purposes. 
+
+
+second highest salary
+
+Working directory of hive : /user/hive/warehouse/
+
+drop/truncate/delete 
+
+orderBy and SortBy difference :sortby sort within the reducers ,orderby sorts things globally 
+
+The SORT BY clause is used to return the result rows sorted within each partition in the user specified order. 
+When there is more than one partition SORT BY may return result that is partially ordered.
+
+Reference :https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sortby.html
+
+The ORDER BY clause is used to return the result rows in a sorted manner in the user specified order.Unlike the SORT BY clause,this clause guarantees a total 
+order in the output.
+
+Reference : https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-orderby.html
+
+
+Difference between RDD and Dataframe?
+
+**How to calculate the average of 5 salaries against to one ID, without using any predefined method?
+
+
+
+**What is ORC and parquet?
+Parquet stores the data in tree format(Nested data),it is used in query optimization.
+Predicate pushdown efficency : It can do computation at partition level,ORC stores min and max info for partitions ,
+it can also used for serializable.As with cloudera ,we use the mostly partitons 
+
+
+Hadoop supports such as RCFile, parquet.
+
+**Difference between limit and top? No difference just syntax
+
+**draw spark sql background execution engine architecture
+
+**What is lineage and how its works in RDD and & dataframe 
+
+**What is Narrow and Wide transformation
+Wide transformation is like shuffle transformation and Narow transformation is like simple trasnformation.  
+
+**Why we use repartioning is like bydefault our spark take like 64 mb of memory by default and when we define it in our program 
+like how much partition we need for our file it is like ,partition is like let say we have 4 executors and we did 5 partition 
+so 1 partition will run on 1 executor and it will wait for that executor to go ideal so in thi say 1st it will take 5 minutes 
+for 1st partition and then it will take like another 5 minutes for another partiton and then that 5th executor will run.
+So we cant give repartioning a free hand as its very heavy function ,there is always a trade off when we have 
+to decide the no of partitions. 
+
+Many times, spark developers will have to change the original partition.
+ This can be achieved by changing the spark partition size and number of spark partitions. 
+ This can be done using the repartition() method.
+
+df.repartition(numberOfPartitions)
+
+repartition() shuffles the data and divides it into a number partitions. 
+But a better way to spark partitions is to do it at the data source and save network traffic. 
+
+**how to define custom accumulator
+
+Accumulator are a place in driver and each and every work will  report the value incremental to the driver.
+
+accumulators are used in action
+
+**how to create UDF in spark(Most important in spark)
+
+**how to use hive udf in spark
+
+**What are accumulators and broadcast variables:
+they are normally not use to show busines logic,they are used to show stats about the job ,like it aggregate the no of task in executors
+and gives the informaton to driver.
+
+Accumulators : 
+
+
+**how to decide various spark parameters in spark-submit : we can use option 
+
+**Difference between coalesce and partition?
+
+**Difference between RDD,Dataframe and Dataset
+
+**what is skew join and how it works
+
+**why shouldn't we use groupby transformation in spark
+
+**how to do mapside join in spark**
+
+**If you have 50 GB of memory and 100 gb of memroy,How you will process it?
+
+**Challenges you faced in spark interview
+
+**what is Pair RDD and when to use them
+
+**performance optimization techniques in spark
+
+**difference between cluster and client mode
+
+**what happens when a worker node is dead
+
+**How to change datatypes in spark and also read about data and timestamp datatypes in spark.
+
+
+
+map Vs mappartition : 
+
+Driver
+Sparkcontext
+Cluster Manager
+Worker/Executor
+Hadoop
+Serialization Ram to hardisk
+Inmemory Computation
+Supports Datascinece languages
+Supports batch and real time processing
+Lazy operation are used to optimize solutions
+Haddop supports only map reduce and spark supports many operations and map reduce also
+Data in spark is represented by 3 ways (dataframe,dataset and RDD)
+RDD : It is collections of elements that can be divided across multiple nodes in cluster to run parallel processing
+RDD : Transformation(It is to create the new RDD or operation applied to RDD) and 
+action (refers to operation on RDD that performs the computation and give the result back to driver) 
+
+Dataset : It only works with scala and java and dataset is constructed from JVM objects and then manipulated using functional transformations(map,flatmap).
+Dataframe : In Spark, Dataframe is distributed collection of data organised into named columns.It is mostly used to structured data processing.
+In scala,dataframe is represented by dataset of rows.It can be used from variety of arrays like Hive tables ,existing RDD,database tables.
+
+
+**Modes of submission in Spark?
+Cluster and Client mode.
+
+
+**ORC and Parquet difference ?
+**ORC and RC Format
+
+
+**User Defined Function : Example where you have used user defined functions.
+
+**What is mergesort bucket?
+
+**Spark approaches two things to join our database.
+Shuffle sort merge join :It is most commanly used join .It is like mappers and reducers and when we do shuffle it increases load on our clusters.
+Tuning your join operations is like optimizing your shuffle operations, 
+spark.conf.set("spark.sql.shuffle.partitions,3)
+Shuffle sort-merge join involves, 
+shuffling of data to get the same join_key with the same worker, and then performing sort-merge join operation at the partition level in the worker nodes
+
+**Shuffle hash join : On the two tables were in accordance with the join keys re-zoning,that shuffle, the purpose is to have
+ the same join keys value of the record assigned to the corresponding partition.
+ 
+The corresponding partition in the data for the join, here first small table partition is constructed as a hash table, 
+and then according to the large table recorded in the join keys value out to match.
+
+
+**The encoder is primary concept in serialization and deserialization (SerDes) framework in Spark SQL.
+Encoders translate between JVM objects and Spark's internal binary format. 
+Spark has built-in encoders which are very advanced. They generate bytecode to interact with off-heap data.
+
+
+
+
+
+**How do you load the data in incremental in sqoop.
+
+**what is lsiding window 
+**what is distributed cache
+
+
+
+How Partitiing happens?
+
+Is groupby perform shuffling,do reduce by perform shuffling?
+
+**Shuffling
+**Where we use broadcast variables
+Broadcast is like,it keeps the read only variable cached on each machine,created by calling sparkcontext.broadcast(v).
+Broadcast Joins : Small table join so to avoid shuffling. 
+We have broadcastjoin threshold which we can define (spark.sql.autoBroadcastJoinThreshold) 
+
+**Improving spark performance
+1)Use Treereducer inplace of reducebykey
+2)When  table is small and u use join ,then u should use broadcastjoin.
+3)Use spark 2.x as it is having optmized code generation (It uses catalyst optimizer),if we will using shuffling then we can use encoders.
+4)You can use cache and persist.
+5)Use right file format(for analysis kind of work use parquet,other file formats are ORC,RC)
+Avro is good when u want to read the whole data
+6)Handle skewed data -to handle skewed data we use salting ,add a randomization 
+7)Use right configuration like executor and executor cores,right memory configuration for driver and spark,enable spark shuffle service
+8)Avoid Data Shuffle 
+9)Avoid Unnecessary calculation : map vs mappartition(try to use mappartition)
+don't make the database connection for every row
+
+
+
+How yarn works and what is differnce between client side cluster and yarn side clustering and What is Standalone Clustering. 
+
+**Define a worker Node
+
+**Why there is need for spark repartioning,
+why spark automatically doesn't do the task itself?why my memory is not distributed why there is skewness there.
+
+
+
+  scala class employee (name,age,salary)
+ovveride the method hashcode
+
+**What is indexing and what is unique primary index ,secondary index in teradata.
+
+dataframe : 
+
+input_file_name() -it is used to take the name and location of file
+
+spark_partition_id()
+
+monotonically_surrogate_key() 
+
+
+How you do the debugging the spark application ,let say it fails in testing.
+
+-How is that flatmap function is able to produce multiple outputs(rows)
+
+
+Static Pruning : It will first filter the records and read the records and 
+it is also called pushdown predicate pushdown in spark.
+
+Have you ever used static pruning in your project,what was your Use case ?
+
+**What is threshold condition of broadcast join ? 10 mb is the default limit .
+
+**Hash and Range partitioning : 
+
+**Why we need multiple strategies.
+
+**When a file is read in spark,how does spark decide number of partitions.
+
+Partitioning strategy 
+Hash partitioning : Suppose hashcode of firstcode is 100,it will divide the hascode by no of partitions and wht ever is the reminder it 
+will sent to the respective partition.100%3=1,so the first record will go to first partition : partition 0,partition 1,partition3
+Range Partitioning : in range partition based on specific columns ,suppose based on id we have partitioned so all the records with 
+id<=3 =0th Partition
+id=4-100=1st Partition(Range partition divides the data based on 
+
+In spark we can't have partition size more than 2 gb,
+
+**How to determine the no of partitions :
+The no of partitions should be atleast equal to the number of cores/executors in the cluster or in multiples.   
+
+The no of partitions shouldn't be too high too low
+
+to get the no of partitions ,we can use .getNumPartitions,when spark runs the data from HDFS,we haev default size of partition equals 
+to no of blocks/no of input splits,Only when no of blocks == 1 then by default we take it as 2 
+
+
+Choosing right partitioning strategy will help us 
+data skew : MAx partitin size
+Optimize performance :Colocation data,the data that resides together computes together.this is the strategy we use on sortmerge
+
+**Stages : We have spark execution plan,in that we have spark code which is divided into jobs and then it is divided into stages
+and then it is divided into task and that tasks will be passed to the executors.
+
+**Spark Stages and Tasks :  
+When we submit the spark program,two types of program will be created 1)driver 2)executor,here driver is master and executor is slave.This master
+and slave are the program related to application.
+
+To process the data on everynode resources are required and resource are memory and cores,first step is resources must be allocated ,when
+the resources must be allocated,then the partitions must be made for each block,node manager is going to alot the resources for every node
+ and all nodes will be under resource manager.
+
+In order to perform the operations on data,the driver will provide the program to everynode(logic has to be supplied for data).
+the execution on partition will supplied logic is called execution and it will be carried by executor.
+Executor is a program which will process the data with the supplied logic.
+Now partition(data like from hdfs) is there,logic(logic is provided by driver) is there,resources(it will be supplied by resource manager) is there,
+once partition(data) and logic
+are there data can be processed and that will be done by program called executor,now executor is slave and driver is master. 
+
+State of execution of a partition in running state is called task,when processing is going on that is called task.
+task is called the execution state of task
+*So we have No of executors = No of partitions=No of tasks(state of execution) (when a program is running) 
+so when we are running the program and running different wide and narrow transfrmation the the driver will be sending code to executor and 
+let say we have 3 partition then 3 executor will be there and running the 3 task and when while running further rdd we have wide transformation then 
+the stage will be formed and if 1 more wide transformation is there then there will be one more stage
+so stage is sequence of narrow transformation and when ever a wide (shuffling) transformation comes then new stage is created
+and driver program will monitors when the work is being done. 
+
+
+
+**Scala Interview Question :
+
+
+ case class is like you can have parameter access directly and its values 
+ **Private meneber is like we can't access it outside the class.
+ What is Trait
+ What is Closure
+ What is Currying function
+ What is case class
+ scala is java based hybrid language which is functional programming language and object oriented programming language.
+ scala treats every single value as object.
+ singleton class : 
+**Few framework of scala are 
+Akka,Spark framework,playframework,scalding framework,Neo4j Framework
+**Variables types and Differences
+var (mutable type) and val (immutable type)
+**explains streams in scala
+lazy list,evaluates only when needed,enhances performance,On-demand Processing
+**Operators in scala : it is rich in built in operators 
+**recursion tail in scala
+used frequently in functional programming
+recursion is a function that calls itself
+a tuple is an immutable data type and can hold objects with different types ,unlike array and list
+**class combines the data and its method whereas object is a method
+**Why do we need App in scala,app is a helper class that holds the main method.
+
+**What are high order function ,in this we can pass complete function as a high order function.
+**what is closure : closure is considered as a function whose return type is dependent
+**A trait can be defined as a unit used to encapsulate the method and its variables.
+**diff beteen java and scala : scala supports closure,conurrency and it has type inference and it has DSL(domain specific language)
+**using extend keyword we can a base class to design an inherited class.
+**implicit classes allow implicit conversations with the class 's primary constructor whn the class is in scope.
+**Access modifiers in scala : private ,protected and public 
+**Monad : a Monad is in scala is an object that wraps another object.
+
+** ananoymous function : function literals at run time.
+**how do i append data in list : 
+**option in scala is used to warap up the missing value
+**Yield provdes the value for each iteration
+for (i<- 10 to 20) yield i
+res75: scala.collection.immutable.IndexedSeq[Int] = Vector(10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+
+**difference between NULL(absence of value),NIL(end a list),None(value of option with no value in it),Nothing(lowest type in the entire type system)
+**Pattern matching in scala : 
+match{
+case 1=> "one"
+case 2 => "three"
+**singleton object : 
+**extactors : object that has a method caled unapply as one of its members
+purpose of unapply method is to match a value and take it apart.
+
+
+
+**Scala case classes are just regular classes which are immutable by default and decomposable through pattern matching.
+ It uses equal method to compare instance structurally. 
+It does not use new keyword to instantiate object. All the parameters listed in the case class are public and immutable by default  
+
+**A trait encapsulates method and field definitions,which can then be reused by mixing them into classes
+like trait{
+def mishu()
+}
+
+class aanchal extends mishu{
+def printhhh {
+println("Hello")
+}
+
+**what are apply and unapply in scala?
+
+**What are multiple sessions in spark
+
+**how to change default partitioning in spark? 
+
+
+Scala tuple : A tuple is a value that contain the fixed no of elements,each with distinct type.
+ tupels are immutable.
+ ("car",6000)
+ 
+ scala> val tuple_mi=List(("car",10000),("pen",60),("marker",12))
+tuple_mi: List[(String, Int)] = List((car,10000), (pen,60), (marker,12))
+
+ scala> tuple_mi.foreach{case(x,y)=>println(s"the value of $x is $y")}
+the value of car is 10000
+the value of pen is 60
+the value of marker is 12 
+
+**How can the elements in tuple get accessed and in list and array ,in tuple we can access it by ._ and in list and array is accessed through index.
+**is there any option to define custom datatypes
+we can use it by type keyword ,type CustomDtype =(Array[Int],Int)
+ 
+ & and && difference : if we use & opeartor will return false when the value is false && is used when we have to select both
+ 
+ 1)Currying function :: 
+It is a function which uses 1 argument,we can do the partial application using currying function.
+
+def add(x : int)=(y : int) 
+2)closure
+A closure is a function which uses one or more variable declared outside the function 
+Like 
+Impure closure : Whenever the datatype of var can be changed it is called impure closure
+
+val number= 10
+Val add=12+number
+
+Def main(args: Array : String)
+
+**Scala high order functions : this function can take argument as a function and is able to return the output as function.
+like we define a function math and define another function in it  and it when we will call that function passig the aruments and function in it.
+
+**Partially applied function : It is like we define a function and then we defined it partialy and during calling the function we pass rest of value .
+def main(args :Array[String]){
+val sum=a+b+c
+val f=sum(10,20,_:Int)
+println(f(30))
+
+Ananoymous function :
+ 
+
+
+
+3)Pure function 
+4)pattern matching
+5)tail recursion -- a recursive function is said to be tail recursive if the recursive call is the last thing done by function.
+6)factory  pattern
+class and object : 
+classes are blueprint for creating object 
+
+constructor is like class mishu() it look like function 
+class User(var name :String ,var age : Int);   this is constructor and when we will create any instance of this class then we have to pass the value in that instance like 
+var user=new User("mishu",27)
+
+Auxiliary Constructor : What are Auxiliary constructors and  How to Use a Auxiliary constructors in Scala.
+ Auxiliary constructors are the alternative constructors for a class and are defined as methods in the class with name "this". 
+The auxiliary constructor in Scala is used for constructor overloading. 
+A class can have many auxiliary constructors but they should have different signatures and must call the previously defined constructors.
+
+class User(var name:String,var age Int){
+	def this(){
+	this("tom",32)
+	}
+	def this(name:String){
+	this(name,32);
+	}
+	};
+	
+	object demo{
+	def main(args:Array[String]){
+	var user=new user("Max",29);
+	}
+	}
+ 
+8)abstract class :
+If a  abstract class is defined it cannot be instantiated.An abstract class does a few things for the inheriting subclass.
+it defines method which can be used by inherited class.
+define abstract methods which the inheriting subclass must implement.
+*we can define one abstract method,by not defining the method
+7)trait
+Scala doesn't allow multipleinheritence from more than one class,traits are basically the partial interfaces and it is denoted by keyword trait,and
+we can then use this trait in another class which want to inherit this.
+
+Program :
+
+package inheritance 
+
+class Rectangle(var width:Double,var Height:Double)
+extends Polygon with Shape{
+override def area :Double =width*height
+override def color :String ="red";
+}
+----------------------------
+packag inheritance 
+
+triat Shape{
+def color :String;
+}
+abstract class Polygon{
+def area :Double;
+}
+object Polygon{
+def main(args:Array[String]){
+var rect =new Rectangle(55.2,20.0);
+print(rect.area);
+println(rect.color);
+}
+def printArea(p : Polygon){
+println(p.area)
+}
+}
+
+8)Scala lazy evaluation : It means it will ive result only when it is called.
+
+
+
+What is ACID
+A : ATOMICITY (either all or nothing)
+C :
+I : 
+D :
+
+Scala has while,do while and for loop
+The difference between do while and while is the do while code will run atleast once untill it matches the condition of while and while loop will will run only when 
+the condition is true.
+
+Match:
+
+age match{
+case 20=>println();
+case _ =>println();
+case 21 =>println()
+
+_ it is default case.
+
+ 
+-----------------------GIT branch ------------------------------ 
+ cloning
+ 
+ GIT commands :
+
+git clone --clone our repo to our local in git bash
+git pull -- pull the updated code in local
+git push -f feature/ --- forceful updated
+git push -- normal push
+git reset --hard id (this id stands for id where we have to reach till means till where we want to add)
+git revert
+git add path of file to be pushed -- it will push only that changes which are required to be commit and push 
+git rebase --It is just like it optimized the commit history.
+git branch branchname--It will create a new branch
+git branch -gives all branches in the local
+git branch -r --gives all branches in the repo 
+git stash -- This is the command if we wanted to do the changes afterwards and not now 
+so we stash the changes and later on destash them when it is required.
+ git stash -u -- We put our uncommited files to stash to save changes when they are not a mode to commit and bug need attention 
+ git stash list and git stash show git stash apply--it is basically used to gte the directory back which we put in stash
+ git log --  git show the history for the repository ,git log --author=" " 
+ git rebase master -- move all of the work from feature to master , it will take the set of commit and will store it outside your repository  
+ git commit -m "rebase" -- It will take the et of commit into another store
+ git revert last_commit(last commit will be one from git log )-- it reverts to the previous commit ,git revert HEAD(it takes the last commit)
+ git fetch -- 
+ git fetch is the command that tells your local git to retrieve the latest meta-data info from the original (yet doesn't do any file transferring.
+ It's more like just checking to see if there are any changes available).
+ git pull on the other hand does that AND brings (copy) those changes from the remote repository
+ 
+ 
+ ---------------------------------------Datawarehousing-------------------------------------------
+ Fact table : A fact table stores quantative information about business.
+
+Time Interval : Day, week, month,few hours 
+
+Periodic snapshot fact table : Stores current stage at regular stage.
+Accumulating Snapshot fact table : Stores a intermediate steps that has happened over a period of time.
+
+**Dimension table 
+
+**surogate key
+
+**primary key
+**seconday key
+
+**Index
+**SCD type 1,type 2,type 3
+In Type 3 Slowly Changing Dimension, there will be two columns
+ to indicate the particular attribute of interest,
+ one indicating the original value, and one indicating the current value.
+ 
+ Also implement SCd type 1 and type 2 in spark.
+ 
+SCD Type - 3 :
+
+Customer Key	Name	Original State	Current State	Effective Date
+1001	Christina	Illinois	California	15-JAN-2003
+Advantages:
+
+- This does not increase the size of the table,since new information is updated.
+
+- This allows us to keep some part of history.
+
+Disadvantages:
+
+- Type 3 will not be able to keep all history where an attribute is changed more than once. For example, if Christina later moves to Texas on December 15, 2003, the California information will be lost.
+
+Usage:
+
+Type 3 is rarely used in actual practice.
+
+------------------------------------------------------------------------------------------------------------------------------
+Parquet to delta format 
+---------------------------------
+ Coding Practise :
+ 
+df.groupby("Name","Age","Education","Year").count().where("count > 1").drop("count").show()
+ 
+na.replace is used for replacing the value 
+ 
+val df3=df2.withColumn("rep",regexp_replace($"Year","1985","1976"))-- Creating a particular column in a dataframe 
+ 
+val df3=df2.na.replace("MBA","MCA")
+ 
+val df3=df2.na.drop()
+ 
+val df3=df2.withColumn("rep",when(col("Year").rlike("1994"),lit("2013")).otherwise(col("Year")))--using when and otherwise like if and else
+ 
+ df.withColumn("lag",lag("salary",2).over(windowSpec))
+   .show() It shows the result of 2 rows ahead
+   
+**Multiline File = We can use multiline option while reading the file.
+val df=spark.read.option("header",true).option("multiLine",true).option("escape","\' ").csv("C:/hadoop/data_file_practise/mishu.csv")
+
+**Multi delimiter File : val b=a.map(i=>i.mkString.split("\\$\\|"))-- mkString use to combine all the elements in List.
+
+
+
+   **Difference between UDF and MAP function in spark.
+   map is more flexible than UDF function
+   
+   
+   **PIVOT :: Spark SQL provides pivot function to rotate the data from one column into multiple columns.
+    val df=df2.groupBy("Product").pivot("Country").sum("Amount")
+	val unPivotDF = pivotDF.select($"Product",
+expr("stack(3, 'Canada', Canada, 'China', China, 'Mexico', Mexico) as (Country,Total)"))
+.where("Total is not null")
+unPivotDF.show()
+
+**What is expression in spark ?
+**What is lit function ? 
+**What are encoders in spark?
+
+
+   incremental load
+  ---
+   scd type 2 implementation in spark
+ handle missing value 
+ removing delimiter
+ creating a another table function lead and lag
+ rank and dense_rank and row_number
+ groupby,partitionby, orderby ,sortby filter where
+ replacing any value using regexp_replace and using when and otherwise 
+ removing duplicate vaue
+ joins in dataframe
+ treating null values
+ see the filetypes in sparkexample
+ foreach & map & flatmap
+ 
+
+select t1.* from
+(select * from table) t1 join
+(select empid,max(modified_date) as max_modify from (select * from table ) t2
+group by empid ) s
+ON t1.empid=s.empid and t1.modified_date=s.max_modify;
+  
+
+
+**Duplicates
+-------------------------------------------------------------
+Project -- day-2-day work :
+we had a scrum call ,What you did yesterday any problem ,we have a sprint cycle of 2-3 weeks
+Agile tool : Upload our unit test snippet and we keep on updating on jeera
+the input file we were given is not recognised by spark as it was coming from mainframe in binary format ,so there is no option to convert into binary 
+to ascii format
+raise a Pull request to move it into release branch and every second friday we have code review andlike we have sprint of 2 weeks and 
+we demo in front of client.  
+
+So if anything happens in production ,then we see if any enhancements is required.\
+We have like Dev,UAT and production
+no of nodes 8-10 in dev nd uat cluster--cores are like 500 cores
+no of nodes can go upto 100 ,800 gb of memory 
+
+The size of processing can be varied daily,like we have 1 gb of file and another day 500 mb ,so for that we have dynamic allocation of resources,
+ 
+**Unit testing : happy path and unhappy path and accordingly we do the positive test and negative test
+so we got the scenrio and accordingly use that. 
+
+
+
+Either use any testing framework : Scala test is a framework and for pyspark we have pytest 
+
+Project like some data types are changed and We have some incremental load.
+
+This is one way using HIVE : 
+create table new As 
+select unioned.*
+from (
+select * from orders x
+UNION ALL 
+select * from order_updates y
+)unioned
+JOIN
+(select order_no,
+max(last_updated_date) as max_date
+from (
+select * from orders 
+UNION All
+select * from order_updates
+)t
+GROUP BY order_no
+)grouped
+ON 
+unioned.order_no=grouped.order_no AND 
+unioned.last_updated_date=grouped.max_date;
+
+Using spark sql ,we can do it by spark.sql(" ")
+
+Another we can perform using spark dataframe API :
+
+val keys = Seq("order_no", "customer_id")
+val timestampCol = "last_updated_date"
+
+val keysColumns = keys.map(ordersDF(_))
+
+val unioned = ordersDF.union(orderUpdatesDF)
+
+val grouped = unioned.groupBy(keysColumns: _*)
+  .agg(
+    max(timestampCol).as(timestampCol)
+  )
+
+val reconciled = grouped.join(unioned, keys :+ timestampCol)
+
+
+Use cases : 
+
+FixedWidth Converter : 
+infer and filter the header from the given file(the header begines with keyword "HEAD"
+eliminates all blank lines
+eliminates all blank spaces if any at begining
+eliminats all characters over 30 characters per line
+infer and filter the footer from the given file
+record the footer count given in file into a variable
+return the pasing records
+
+
+legacy system to bigdata system : 
+
+**Suppose we have to find the expiray date when we all only given the 
+
+We have been given the recharge date and we will add the no of remaining daya and can get to know when recharge will be finished.
+
+**Handling Null values : df.col("column_name") is not null 
+
+**How we do update in Hive. 
+
+Update based on condition : 
+
+val df2 = df.withColumn("new_gender", when(col("gender") === "M","Male")
+      .when(col("gender") === "F","Female")
+      .otherwise("Unknown"))
+	  
+	  **what is lit in spark and what is exists in spark
+	  
+	  What is the regular expression you have used and wht is expression in spark
+	  
+	  SCD type 2 in saprk scala :
+
+
+
+
+Spark Questions and Answer:
+
+Question 1:  How to debug code using cluster mode in spark-submit?
+Answer:    Two options:   
+1.	Resource Manager(RM) logs  
+2.	Yarn logs -applicationId applicationName
+
+
+Question 2:  How to export Hive data into oracle database using spark?
+Answer:  Using spark JDBC  (example : DataFrame.write.format(‘jdbc).options(“,………”))
+
+
+Question 3: How to attain fault tolerance in Spark?
+Answer:   Lineage graph(DAG)
+
+
+
+Hadoop Questions and Answer:
+
+Question 4: How many mappers will run if we run below query in Hive?
+Query : select * from tablename where partitioncol="xyz" 
+
+Ans: No mappers (Zero)
+
+
+Question 5: How to rename column name in hive table? 
+Answer:  ALTER TABLE tablename CHANGE “old column name”  “new column name”;
+
+
+Question 6: If we don’t have primary key in source table then how to run sqoop with multiple mappers?
+Answer: Using ‘split-by’ command 
+
+
+
+Scala Questions and Answer:
+
+Question 7: what are different collections in scala?
+Answer: List ,Map, Tuple ,Sets, Options, Iterators
+
+
+Question 8:  I have a list variable in Scala code. For Example : var strs = List("apple", "banana")
+Now I want to append new “Grapes” string to the existing list variable?
+
+Answer: strs  :+= “Grapes”  (using operator   :+= )
+
+
+
+Question 9:
+I have two tables
+Table 1	Table 2
+ColumnName(c1)	columnName(c1)
+10
+20
+20	10
+10
+20
+20
+
+If I do an inner join then what is the output?
+
+Answer:
+10
+10
+20
+20
+20
+20
+
+**What are regular expression in Spark ?
+**Average salary of employee greater than salary in each departmenet.
+
+
+
+
+
+select empno,e.deptno,sal 
+  from emp e, ( select deptno,avg(sal) avsal 
+                  from emp 
+              group by deptno
+              ) a 
+ where e.sal > a.avsal 
+   and e.deptno = a.deptno;
+   
+**Removing duplicate value using row number : 
+SELECT 
+        contact_id, 
+        first_name, 
+        last_name, 
+        email, 
+        ROW_NUMBER() OVER (
+            PARTITION BY 
+                first_name, 
+                last_name, 
+                email
+            ORDER BY 
+                first_name, 
+                last_name, 
+                email
+        ) row_num
+     FROM 
+        sales.contacts
+
+**2nd heighest salary department wise
+SELECT deptno,
+
+
+       sal,
+
+
+       dr
+
+
+FROM
+
+
+  (SELECT deptno,
+
+
+          sal,
+
+
+          dense_rank()over(partition BY deptno
+
+
+                           ORDER BY sal DESC) dr
+
+
+   FROM emp)
+
+
+WHERE dr = 2
+
+Datawarehousing concepts :
+
+2-3 PM 
+
+Data profiling : 
+Reduce run time or optimization in Informatica,spark,hive,azure data factory.
+
+**what is default delimiter in spark 
+**map-side-join
+**reduceBykey and groupbykey
+
+groupBykey : (a,(1,2,3)),(b,(1,2,3)
+reduceBykey : (a,(1,2,3)),(b,(1,2,3)
+
+Types of compression : snappy,gzip,
+
+
+	 
+	 Spark session vs spark context like 1 per JVM
+	 Logs ::
+	 Unit testing ?
+	 
+	 serde 
+	 predicate pushdown 
+	 shuffle
+	 spark web UI
+	 logs Resource Manager logs/yarn logs 
+	 unit testing
+	 debugging
+	 skewed data
+	 use case
+	 Streaming
+	 
+	 Window=Window.partitionBy(dept_name).orderBy(salary)
+	 df.withColumn("row_number",row_number().over(window)).show()
+
+
+----------------------------------------------------------event hub interview Questions---------------------------------
+
+
+
+	 
+	 
+	 
+	
+	 
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+  
+
+
+ 
