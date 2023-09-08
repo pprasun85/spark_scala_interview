@@ -1,0 +1,446 @@
+Category
+
+Question
+
+Hadoop
+
+Impala advantage and disadvantage
+
+Hadoop
+
+Sqoop: logic for star/ delta loads
+
+Hadoop
+
+File formats and why a particular file format
+
+Hadoop
+
+Sqoop optimizations .... internals of scoop, how to improve rdbms to hdfs import speed, use of diff number of mappers, split-by parameter usage
+
+Hadoop
+
+Difference between avro,orc,parquet
+
+Hadoop
+
+Advantages of Avro even though its row based file formats
+
+Hadoop
+
+Half semi joins, map side joins, convert a normal join to map side join
+
+HDFS
+
+Hdfs commands..... asked about -copyFromLocal,put,get,copyToLocal
+
+Hive
+
+advanced concepts like BucketMap and SortMerge, partitioning or bucketing – also when to go for static vs dynamic partitions.
+
+Hive
+
+Hive : internal external table
+
+Hive
+
+Hive: distributing data via partitions/ buckets, ddl knowledge, improve performance with map joins, when to use them
+
+Hive
+
+What is UDF and write a code to create a udf
+
+Hive
+
+What is SMB and bucket map join in hive explain them
+
+Kafka
+
+Kafka : checkpoints mechanism
+
+Kafka
+
+Kafka : Importance of schema registry in Kafka application
+
+Kafka
+
+Kafka : Type of acks in Kafka
+
+Scala
+
+how to create immutable class
+
+Scala
+
+Scala : “sealed” keyword  and its usages in Scala
+
+Scala
+
+Scala : List/Map data structure functionality, is List or Map DS mutable or immutable in Scala
+
+Scala
+
+Scala : partial function/ function currying
+
+Scala
+
+Scala : Scala drawback
+
+Scala
+
+Scala : traits vs abstract class
+
+Scala
+
+Scala/Java : Write a Scala or java code
+Input
+arr1=(1,2,3)
+arr2=(4,5,6)
+Output
+(1,4) (2,5)(3,6)(2,4)(2,5)(3,6) ...and so on-------------
+
+Scala
+
+Sorting related ques/String related
+
+Scala
+
+Code to write Data frame and join 3 data frame together
+
+Scala
+
+Can flat map be used with df/ds?
+
+Scala
+
+Scala slick library and its advantages
+
+Scala
+
+How you will read csv file with multiple delimiters properly while reading itself.
+
+Scala
+
+There is dataset have multiple columns. One of column is marks and we want to add one column having addition of marks in such a way that column should contain addition one row after another row value addition.
+
+Scala
+
+How will you join two large dataset if they are not fitted in memory.
+
+Scala
+
+Monads, companion object, case class, traits in Scala?
+
+Scala
+
+Program on reversing an array and sorting it
+
+Spark
+
+how the stages gets created in DAG
+
+Spark
+
+Spark : About the spark and Scala like repartition, coalesce, shared variable, about dataframe,various file formats, optimization technique.
+
+Spark
+
+Spark : From a Employee object(fname, lname, address) find out the all employee first name with their city(from Address)
+
+Spark
+
+Spark : group by key and reduce by key diff
+
+Spark
+
+Spark : internal working of spark
+
+Spark
+
+Spark : Join data frame containing null records
+
+Spark
+
+Spark : Modes of deployment(cluster or client) use case
+
+Spark
+
+Spark : Persistence levels in Spark world
+
+Spark
+
+Spark : Read file from local, convert it into data frame and apply some data frame api on it and save the result in table.
+
+Spark
+
+Spark : Reduce and reduce by key is action or not?
+
+Spark
+
+Spark : spark architecture
+
+Spark
+
+Spark : spark sql related ques is also asked
+
+Spark
+
+Spark : what is map, flat map and diff
+
+Spark
+
+Spark : windows functions like dencerank and rank , partition by,
+
+Spark
+
+Spark SQL - Some sql query mostly based on joins , window and aggregate function(sql queries are  scenario based).
+
+Spark
+
+Spark: code to write Data frame and join 3 data frame together
+
+Spark
+
+what is executor task stages and their relationship
+
+Spark
+
+Basic question about the spark and Scala like repartition, coalesce, shared variable, about dataframe,various file formats, optimization technique.
+
+Spark
+
+Windows functions like dencerank and rank , partition by,
+
+Spark
+
+Optimization techniques used in spark
+
+Spark
+
+Optimization techniques used in spark sql joins
+
+Spark
+
+Transformation vs action, cache, persist with use case
+
+Spark
+
+How stages gets created
+
+Spark
+
+How to convert df to ds and what will happen if we don't cast the case class object to a df?
+
+Spark
+
+Spark submit execution flow
+
+Spark
+
+If we give 2 actions in  a job then how program will execute? What if we give one of the action in the middle of the job. Consider there are total 10 transformations and we give 2 actions
+
+Spark
+
+Window function in spark and sql
+
+Spark
+
+Which components of Hadoop and spark ecosystem uses zookeeper
+
+Spark
+
+spark streaming Dstream architecture
+
+Spark
+
+Different modes while reading and writing in data frame?
+
+Spark
+
+Can we overwrite just a partition while writing a data frame?
+
+Spark
+
+33. different spark optimization techniques I have used.... explain optimizations related to cluster configuration level also including overhead memory and all and not just
+
+Spark
+
+Spark : processing data with data frames filtering and grouping, Hash partitioning, UDFs, shuffle reduction and different joins, stages of a job, minimizing shuffle
+
+Unix
+
+Linux commands you know.... chimed, chown usage, how can we check total number of process running in Linux using Linux command
+
+
+
+https://docs.scala-lang.org/tour/traits.html
+
+https://docs.scala-lang.org/overviews/scala-book/abstract-classes.html
+
+https://docs.scala-lang.org/overviews/scala-book/list-class.html
+
+https://docs.scala-lang.org/overviews/scala-book/map-class.html
+
+https://www.scala-lang.org/old/node/123
+
+https://www.geeksforgeeks.org/difference-between-traits-and-abstract-classes-in-scala/
+
+
+=============
+df1
+
+ 
+
+emp_id|emp_name|  emp_city|emp_salary|
++------+--------+----------+----------+
+|     1|    John|    Sydney|   35000.0|
+|     2|   Peter| Melbourne|   45000.0|
+|     3|     Sam|    Sydney|   55000.0|
+-------------------------------------------------
+
+ 
+
+df2-Incremental_data
+
+ 
+
+emp_id|emp_name|  emp_city|emp_salary|
++------+--------+----------+----------+
+|     2|   Peter| Melbourne|   55000.0|
+|     5|  Jessie|  Brisbane|   42000.0|
+
+ 
+
+Exp_Output
+
+ 
+
+  1|    John|    Sydney|   35000.0  
+  3|     Sam|    Sydney|   55000.0|
+  2|   Peter| Melbourne|   55000.0|
+  5|  Jessie|  Brisbane|   42000.0|
+  
+  
+  from pyspark.sql.functions import *
+
+>>> val df = df1.join(df2, df1.id == df2.id,'full_outer').select(coalesce(df1.id,df2.id).alias("id"),coalesce(df2.sallary,df1.sallary).alias("sallary"))
+>>> df.show();
+
+or we can also get incremental load by using union and drop duplicate method
+
++---+-----+
+| id|value|
++---+-----+
+|  1|  abc|
+|  3|  xyz|
+|  2|  cde|
++---+-----+
+  
+  df.("rank", rank().over(Window.partitionBy($"id").orderBy($"date".desc)))
+  .filter($"rank" === 1)
+  .drop($"rank")
+  .orderBy($"id")
+  .show
+  
+  ==============
+m1,m2,m3
+12,34,56
+23,56,86
+45,67,5,6 
+56,77,66
+
+
+val s = "How are you"
+=================
+d Country
+1 Srilanka
+2 Australia
+3 India
+4 South Africa
+5 Newzealand
+
+Expected Output:
+--------------------------------
+Srilanka Vs Australia
+Srilanka Vs India
+Srilanka Vs South Africa
+Srilanka Vs Newzealand
+Australia Vs India
+Australia Vs South Africa
+Australia Vs Newzealand
+India Vs South Africa
+India Vs Newzealand
+South Africa Vs Newzealand
+
+
+WITH teams
+     AS (SELECT 'India' team
+         FROM dual
+         UNION ALL
+         SELECT 'Pakistan' team
+         FROM dual
+         UNION ALL
+         SELECT 'Srilanka' team
+         FROM dual
+         UNION ALL
+         SELECT 'Australia' team
+         FROM dual
+         )
+SELECT DISTINCT CASE
+                  WHEN t1.team >= t2.team THEN t2.team
+                  ELSE t1.team
+                END  || ' VS '||
+                CASE
+                  WHEN t1.team >= t2.team THEN t1.team
+                  ELSE t2.team
+                END Matches
+FROM teams t1
+       cross join teams t2
+WHERE t1.team != t2.team
+ORDER BY Matches;
+
+
+===============
+	Qtr 	sales
+A    	 q1 	5
+A    	 q2 	2
+A    	 q3 	4
+A    	 q4 	6
+cmpp	q1	q2	q3	q4
+A   	5	2	4	6
+
+df1 = df.select
+
+
+Table 1	Table2
+1	Null
+1	Null
+Null	1
+	1
+	
+	===============
+	INPUT FROM FILE (.txt)
+
+----------------------------
+
+
+1 , Rahul , Dravid | 100k
+
+2 , Virat , Kohli | 200k
+
+3 , MS , Dhoni , 270k
+
+4 , Dinesh , Kartik , 80k
+
+
+val df = spark.read.options(header->true).txt("path)
+val df1 = df.replace('|',',')
+val df2 = df1.replace(',','|')
+df2.show()
+
+Value
+1 , Rahul , Dravid , 100k
+2 , Virat , Kohli , 200k
+3 , MS , Dhoni , 270k
+4 , Dinesh , Kartik , 80k
+=================================
